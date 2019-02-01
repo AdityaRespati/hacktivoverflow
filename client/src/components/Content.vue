@@ -37,7 +37,7 @@
       </v-card>
     </div>
   </div>
-</template>
+</template> 
 
 <script>
 import AddQuestion from "@/components/createQuestion.vue";
@@ -63,7 +63,7 @@ export default {
     addQuestion(question){
       this.dialog = false;
       this.$store.dispatch('createQuestion', question)
-    },
+    }, 
     openQuestion(question){
       this.$store.dispatch('openQuestion', question)
     }

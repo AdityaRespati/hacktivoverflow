@@ -7,8 +7,8 @@
     <v-form>
       <v-container>
         <v-text-field>
-          <template slot="label">Search question ...
-            <v-icon style="vertical-align: middle; padding-left: 26px;">search</v-icon>
+          <template v-model="query" slot="label">Search question ...
+            <v-icon @click="dispatchSearch" style="vertical-align: middle; padding-left: 26px;">search</v-icon>
           </template>
         </v-text-field>
       </v-container>
@@ -27,7 +27,8 @@ export default {
   name: "Navbar",
   data() {
     return {
-      dialog: false
+      dialog: false,
+      query: ""
     };
   },
   methods: {
@@ -46,6 +47,9 @@ export default {
           this.$store.dispatch('signOut')
         }
       })
+    },
+    dispatchSearch(){
+      this.$store.dispatch('search', this.query)
     }
   }
 };

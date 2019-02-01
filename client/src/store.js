@@ -4,7 +4,7 @@ import axios from 'axios'
 import swal from 'sweetalert'
 import { stat } from 'fs';
 
-Vue.use(Vuex)
+Vue.use(Vuex) 
 
 var server = "http://localhost:3000"
 
@@ -16,28 +16,28 @@ export default new Vuex.Store({
     currentAnswer: []
   },
   mutations: {
-    authenticateUser(state){
-      state.isLogin= true
+    authenticateUser(state) {
+      state.isLogin = true
     },
-    userSignout(state){
-      state.isLogin=false
+    userSignout(state) {
+      state.isLogin = false
     },
-    mutateGetQuestions(state, arrQuestions){
+    mutateGetQuestions(state, arrQuestions) {
       state.questions = arrQuestions
     },
-    addQuestion(state, objQuestion){
+    addQuestion(state, objQuestion) {
       state.questions.unshift(objQuestion)
     },
-    openingQuestion(state, objQuestion){
+    openingQuestion(state, objQuestion) {
       state.openQuestion = objQuestion
     },
-    closingQuestion(state){
+    closingQuestion(state) {
       state.openQuestion = false
     },
-    getCurrentAnswer(state, arrAnswer){
+    getCurrentAnswer(state, arrAnswer) {
       state.currentAnswer = arrAnswer
     },
-    addAnswer(state, objAnswer){
+    addAnswer(state, objAnswer) {
       state.currentAnswer.unshift(objAnswer)
     }
   },
@@ -78,7 +78,7 @@ export default new Vuex.Store({
           }
         })
     },
-    userLogin({commit}, objUser) {
+    userLogin({ commit }, objUser) {
       axios
         .post(`${server}/users/login`, objUser)
         .then(res => {
@@ -94,11 +94,11 @@ export default new Vuex.Store({
           })
         })
     },
-    signOut({commit}){
+    signOut({ commit }) {
       localStorage.removeItem('token')
       commit('userSignout')
     },
-    getQuestions({commit}){
+    getQuestions({ commit }) {
       axios
         .get(`${server}/questions`, {
           headers: {
@@ -117,7 +117,7 @@ export default new Vuex.Store({
           })
         })
     },
-    createQuestion({commit}, objQuestion){
+    createQuestion({ commit }, objQuestion) {
       axios
         .post(`${server}/questions`, objQuestion, {
           headers: {
@@ -136,14 +136,14 @@ export default new Vuex.Store({
           })
         })
     },
-    openQuestion({commit}, objQuestion){
+    openQuestion({ commit }, objQuestion) {
       commit('openingQuestion', objQuestion)
       console.log(this.state.openQuestion)
     },
-    closeQuestion({commit}){
+    closeQuestion({ commit }) {
       commit('closingQuestion')
     },
-    getCurrentAnswer({commit}, questionId){
+    getCurrentAnswer({ commit }, questionId) {
       axios
         .get(`${server}/answers/${questionId}`, {
           headers: {
@@ -161,20 +161,48 @@ export default new Vuex.Store({
           })
         })
     },
-    createAnswer({commit}, objAnswer){
-      let body = {
-        title: objAnswer.title,
-        description: objAnswer.description
-      }
+    createAnswer({ commit }, objAnswer) {
+      if (!objAnswer.title) {
+        swal({
+          title: "Oops!",
+          text: "please fill your answer title",
+          icon: "error",
+        })
+      } else {
+        let body = {
+          title: objAnswer.title,
+          description: objAnswer.description
+        }
 
+        axios
+          .post(`${server}/answers/${objAnswer.questionId}`, body, {
+            headers: {
+              token: localStorage.getItem('token')
+            }
+          })
+          .then(res => {
+            commit('addAnswer', res.data.newAnswer)
+          })
+          .catch(err => {
+            swal({
+              title: "Oops!",
+              text: err.response.data.message,
+              icon: "error",
+            })
+          })
+
+      }
+    },
+    search({commit}, objQuestion){
       axios
-        .post(`${server}/answers/${objAnswer.questionId}`, body, {
+        .get(`${server}/questions/search?q=${objQuestion}`, {
           headers: {
             token: localStorage.getItem('token')
           }
         })
         .then(res => {
-          commit('addAnswer', res.data.answer)
+          commit('mutateGetQuestions', res.data.questions)
+          console.log(this.state.questions)
         })
         .catch(err => {
           swal({

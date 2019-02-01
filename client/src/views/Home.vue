@@ -4,9 +4,9 @@
     <div class="after-login" v-if="isLogin==true">
       <Navbar/>
       <Content v-if="openQuestion==false"/>
-      <Question v-if="openQuestion!==false"/>
+      <Question v-if="openQuestion!==false" @back-to-home="openQuestion=false" @get-question="dispacthGetQuestions"/>
     </div>
-  </div>  
+  </div>
 </template>
 
 <script>
@@ -29,6 +29,11 @@ export default {
     Navbar,
     Content,
     Question
+  },
+  methods:{
+    dispacthGetQuestions() {
+      this.$store.dispatch("getQuestions");
+    }
   },
   computed: {
     LoginUser() {

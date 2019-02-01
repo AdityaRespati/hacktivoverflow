@@ -1,8 +1,9 @@
 const Answer = require('../models/Answer')
-const Question = require('../models/User')
+const Question = require('../models/Question')
 
 class answerController {
   static create(req, res, next) {
+    var newAnswer = ""
     Answer
       .create({
         title: req.body.title,
@@ -11,11 +12,23 @@ class answerController {
         questionId: req.params.questionId
       })
       .then(answer => {
+        newAnswer = answer
+        return Question
+          .findById(answer.questionId)
+      })
+      .then(question => {
+        question.answers.push(newAnswer._id)
+        question
+          .save()
+        console.log(question)
+      })
+      .then(response => {
         res
           .status(201)
           .json({
             msg: "create success",
-            answer
+            response,
+            newAnswer
           })
       })
       .catch(err => {
@@ -30,7 +43,7 @@ class answerController {
 
   static findByQuestionId(req, res, next) {
     Answer
-      .find({questionId: req.params.questionId})
+      .find({ questionId: req.params.questionId })
       .then(answers => {
         res
           .status(200)
@@ -200,20 +213,20 @@ class answerController {
 
   static delete(req, res, next) {
     Answer
-      .findOne({_id: req.params.id})
+      .findOne({ _id: req.params.id })
       .then(answer => {
-        if(answer.createdBy.toString() == req.user._id.toString()){
+        if (answer.createdBy.toString() == req.user._id.toString()) {
           Answer
-          .findOneAndDelete({ _id: req.params.id })
-          .then(answer => {
-            res
-              .status(200)
-              .json({
-                msg: "delete success",
-                answer
-              })
-          })
-        } else{
+            .findOneAndDelete({ _id: req.params.id })
+            .then(answer => {
+              res
+                .status(200)
+                .json({
+                  msg: "delete success",
+                  answer
+                })
+            })
+        } else {
           res
             .status(401)
             .json({
